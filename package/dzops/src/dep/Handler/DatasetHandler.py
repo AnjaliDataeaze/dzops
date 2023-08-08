@@ -121,8 +121,8 @@ class DatasetHandler:
             datasetRepositoryManager1 = DatasetRepositoryManager()
             datasetRepositoryManager1.init()
             datasetRepositoryManager1.get_url(target)
-            # datasetMetadataManager = DatasetMetadataManager()
-            # datasetMetadataManager.create_dataset(json_loader, conn)
+            datasetMetadataManager = DatasetMetadataManager()
+            datasetMetadataManager.create_dataset(json_loader, conn)
 
         except Exception as e:
             raise e
@@ -221,7 +221,7 @@ class DatasetHandler:
 
     def pull_repo(self, audio):
         try:
-            datasetRepositoryManager1 = DatasetMetadataManager()
+            datasetRepositoryManager1 = DatasetRepositoryManager()
             datasetRepositoryManager1.pull(audio)
         except Exception as e:
             raise e

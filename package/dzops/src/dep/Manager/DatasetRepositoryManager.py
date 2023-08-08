@@ -6,25 +6,24 @@ import os
 
 class DatasetRepositoryManager:
     def init(self):
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!11")
-        a=git.Repo.init(os.getcwd())
-        print(a)
-        # Repo.init(
-        #     ".",
-        #     force=True,
-        # )
+
+        git.Repo.init(os.getcwd())
+        Repo.init(
+            ".",
+            force=True,
+        )
 
     def get_url(self, target):
-        g = git.Repo.init(os.getcwd())
-        print("urlsdetails")
-        print(g)
-        # s = Repo(os.getcwd())
-        # s.get_url(target)
+        git.Repo.init(os.getcwd())
+        
+        s = Repo(os.getcwd())
+        s.get_url(target)
 
 
     def add(self, target):
         s = Repo(os.getcwd())
         g = git.Repo(os.getcwd())
+        print(g)
         s.add(
             targets=target,
             recursive=False,
@@ -49,6 +48,7 @@ class DatasetRepositoryManager:
         g = git.Repo(os.getcwd())
         g.git.add('--all')
         g.git.commit('-m',message)
+        print(g)
     
     def clone(self,args):
         git.Git(os.getcwd()).clone(args)
@@ -59,8 +59,10 @@ class DatasetRepositoryManager:
         with s.config.edit() as conf:
             conf["core"] = {"remote":"data"}
             conf["remote"]["data"] = {"url": str(data)+'/'+name}
-        g.create_remote('origin', str(gita))
+        z=g.create_remote('origin', str(gita))
+        print(z)
         g.git.add('--all')
+        print(g)
 
     def push(self):
         s = Repo(os.getcwd())
@@ -77,7 +79,7 @@ class DatasetRepositoryManager:
         print("here")
         s = Repo(os.getcwd())
         s.fetch()
-        # s.checkout()
+        s.checkout()
         s.pull(remote="remote_store")
 
     def remote_dataset(self, name: str, args1: str, args2: str):

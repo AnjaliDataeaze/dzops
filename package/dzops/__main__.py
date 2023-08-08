@@ -62,9 +62,6 @@ try:
     def create_dataset(corpus_name: str = typer.Option(..., "--corpus_name") ,
                       corpustype: str = typer.Option(..., "--corpus_type"),
                       language : str = typer.Option(..., "--language"),
-                      native_schema: str = typer.Option(..., "--native_schema"),
-                      common_schema: str = typer.Option(..., "--common"),
-                      template: str = typer.Option(..., "--template"),
                       source:str = typer.Option(..., "--source_url"),
                       source_type:str = typer.Option(..., "--source_type") , vendor :str = typer.Option(..., "--vendor"),
                       domain: Optional[str] =typer.Option(None, "--domain"),
@@ -83,62 +80,28 @@ try:
         
         file_exists = is_file_present(file_name)
         if file_exists:
+            
             config = configparser.ConfigParser()
             config.read(file_name)
             ACCESS_TOKEN = config.get('github', 'access_token')
             team_name = config.get('github', 'team_name')
+            
+            
             authentication = AccessControl()
             # fetching user id from udops_user table
             user_id = authentication.authenticate(ACCESS_TOKEN)
+            
              # fetching team-id from cfg_udops_teams_metadata
             team_id = authentication.get_user_team(team_name)
+            
             if team_id==0:
                 return "team not found"
             else:
-                # if re.match("r'^s3://([\w.-]+)/(.+)$'", source) == True:
-                #    Source_tenant = input("Enter Source Tenant name:")
-                #    User_Token = input("Enter User Token:") # Partial change for import of data
-                #    AccessControl().partial_change(Source_tenant,User_Token)
-                #    if corpus_name == os.path.basename(os.getcwd()):
-                #         corpus_details = {
-                #         "corpus_name": corpus_name,
-                #         "corpus_type": corpustype,
-                #         "language": language,
-                #         "source_type": source_type,
-                #         "vendor": vendor,
-                #         "domain": domain,
-                #         "description": description,
-                #         "lang_code":lang_code,
-                #         "acquisition_date": acquisition_date,
-                #         "migration_date": migration_date,
-                #         "custom_fields": [
-                #                 {
-                #                     "field_name": "template_file_path",
-                #                     "field_value": str(a)
-                #                 },
-                #                 {
-                #                     "field_name": "native_schema",
-                #                     "field_value": str(b)
-                #                 },
-                #                 {
-                #                     "field_name": "common_schema",
-                #                     "field_value": "/poc/promise/" + str(c)
-                #                 }
-                #             ]
-                #
-                #              }
-                #         udataset.init(corpus_details,source)
-                #         corpus_id = authentication.corpus_id(corpus_name)
-                #         authentication.default_access(corpus_id,user_id)
-                #         authentication.Corpus_team_map(team_id , corpus_id)
-                #       #  AccessControl().retrieve_change()
-                #    else:
-                #         return "Corpus name and folder name should be same"
-                #else:
-                    if corpus_name == os.path.basename(os.getcwd()):
-                        a = os.path.basename(template)
-                        b = os.path.basename(native_schema)
-                        c = os.path.basename(common_schema)
+                if re.match("r'^s3://([\w.-]+)/(.+)$'", source) == True:
+                   Source_tenant = input("Enter Source Tenant name:")
+                   User_Token = input("Enter User Token:") # Partial change for import of data
+                   AccessControl().partial_change(Source_tenant,User_Token)
+                   if corpus_name == os.path.basename(os.getcwd()):
                         corpus_details = {
                         "corpus_name": corpus_name,
                         "corpus_type": corpustype,
@@ -150,26 +113,37 @@ try:
                         "lang_code":lang_code,
                         "acquisition_date": acquisition_date,
                         "migration_date": migration_date,
-                        "custom_fields": [
-                                {
-                                    "field_name": "template_file_path",
-                                    "field_value": str(a)
-                                },
-                                {
-                                    "field_name": "native_schema",
-                                    "field_value": str(b)
-                                },
-                                {
-                                    "field_name": "common_schema",
-                                    "field_value": "/poc/promise/" + str(c)
-                                }
-                            ]
+                        
+                
+                             }
+                        udataset.init(corpus_details,source)
+                        corpus_id = authentication.corpus_id(corpus_name)
+                        authentication.default_access(corpus_id,user_id)
+                        authentication.Corpus_team_map(team_id , corpus_id)
+                        AccessControl().retrieve_change()
+                   else:
+                        return "Corpus name and folder name should be same"
+                else:
+                    if corpus_name == os.path.basename(os.getcwd()):
+                       
+                        corpus_details = {
+                        "corpus_name": corpus_name,
+                        "corpus_type": corpustype,
+                        "language": language,
+                        "source_type": source_type,
+                        "vendor": vendor,
+                        "domain": domain,
+                        "description": description,
+                        "lang_code":lang_code,
+                        "acquisition_date": acquisition_date,
+                        "migration_date": migration_date,
+                        
                         }
                         udataset.init(corpus_details,source)
                         corpus_id = authentication.corpus_id(corpus_name)
                         authentication.default_access(corpus_id,user_id)
                         authentication.Corpus_team_map(team_id , corpus_id)
-                      #  AccessControl().retrieve_change()
+                        AccessControl().retrieve_change()
                     else:
                         return print("Corpus name and folder name should be same")
         else:
@@ -212,12 +186,9 @@ try:
         udataset.add(target)
     
     @app.command()
-    def remote(name : str, gita: str):
-        if re.sub(r'^.*/(.*?)(\.git)?$', r'\1', gita) == os.path.basename(os.getcwd()):
-            data = teamusermanager().get_s3_path()
-            udataset.remote(name, data, gita)
-        else: 
-            return "Git Repository name should be same as Corpus name"
+    def remote(name : str,data:str, gita: str):
+        udataset.remote(name, data, gita)
+        
 
     @app.command()
     def commit(message: str):
@@ -262,32 +233,31 @@ try:
     
     @app.command()
     def clone(git:str):
-
-
-        return udataset.clone(git)
-        # corpus_name = re.sub(r'^.*/(.*?)(\.git)?$', r'\1', git)
-        # authentication = AccessControl()
-        # corpus_id = authentication.corpus_id(corpus_name)
-        # dir_path = os.path.dirname(os.path.realpath(__file__))
-        # file_name = os.path.join(dir_path, 'src/dep/config/udops_config')
-        # def is_file_present(file_name):
-        #     return os.path.isfile(file_name)
-        # file_exists = is_file_present(file_name)
-        #
-        # if file_exists:
-        #     config = configparser.ConfigParser()
-        #     config.read(file_name)
-        #     ACCESS_TOKEN = config.get('github', 'access_token')
-        #     authentication = AccessControl()
-        #     user_id = authentication.authenticate(ACCESS_TOKEN)
-        #     # check the permission from cfg_udops_acl (read, write)
-        #     if authentication.authorize_user_clone(user_id,corpus_id)==1:
-        #         return udataset.clone(git)
-        #     else:
-        #         print("No access for user to clone corpus")
-        # else:
-        #     print(f"The file '{file_name}' does not exist in the current working directory.")
-
+        corpus_name = re.sub(r'^.*/(.*?)(\.git)?$', r'\1', git)
+        authentication = AccessControl()
+        corpus_id = authentication.corpus_id(corpus_name)
+        dir_path = os.path.dirname(os.path.realpath(__file__))
+        file_name = os.path.join(dir_path, 'src/dep/config/udops_config')
+        def is_file_present(file_name):
+            return os.path.isfile(file_name)
+        file_exists = is_file_present(file_name)
+        
+        if file_exists:
+            config = configparser.ConfigParser()
+            config.read(file_name)
+            ACCESS_TOKEN = config.get('github', 'access_token')
+            authentication = AccessControl()
+            user_id = authentication.authenticate(ACCESS_TOKEN)
+            # check the permission from cfg_udops_acl (read, write)
+            if authentication.authorize_user_clone(user_id,corpus_id)==1:
+                return udataset.clone(git)
+            else:
+                print("No access for user to clone corpus")
+        else:
+            print(f"The file '{file_name}' does not exist in the current working directory.")
+            
+            return udataset.clone(git)
+    
     @app.command()
     def fetch(git:str,folder:Optional[str] =typer.Argument(None)):
         udataset.clone(git)
